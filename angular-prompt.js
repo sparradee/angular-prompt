@@ -299,110 +299,110 @@
   angularPrompt.service('$prompt', [
     'ngDialog', '$q',
     function(ngDialog, $q) {
-      
+      var $this = this;
+  
+      this.prompt = function(fieldArray, buttonArray, optionsObject) {
+        return doPrompt(fieldArray, buttonArray, optionsObject);
+      };
+  
+      this.alert = function(message, buttonArray, optionsObject) {
+        return doPrompt({type: 'text', value: message}, buttonArray, optionsObject);
+      };
+  
+      var returnOrProcess = function(input) {
+        return (input && input.constructor === Function) ? input() : input;
+      };
+  
+      var doPrompt = function(fieldArray, buttonArray, optionsObject) {
+        var promptPromise = $q.defer();
+  
+        // First, build up the proper array of field objects
+        if(!fieldArray) {
+          console.warn('prompt::error::Invalid field data submitted');
+          return;
+        }
+        if(fieldArray.constructor !== Array) {
+          fieldArray = [fieldArray];
+        }
+        var fieldTemplate = {id: null, type: '', placeholder: '', class: '', width: 12, filter: null, help: null, value: null, disabled: null, options: null, size: 4, mandatory: false, click: null, tokenLimit: 1, tokenSource: null, maxResults: 10, upload: null, uploadOptions: null, uploadCallback: null, fileOptions: null};
+        var fieldList = [];  
+        fieldArray.forEach(function(field, index) {
+          var finalField = angular.merge({}, fieldTemplate, {id: index}, field);
+          fieldList.push(finalField);
+        });
+        
+        // Second, some maintenance for every field
+        fieldList.forEach(function(field) {
+          
+          // 1. Filters 
+          // The filter should be a RegExp object, but can alternatively be one of the below string options
+          // as aliases for the most common filter types
+          if(field.filter !== null) {
+            if(field.filter.constructor !== RegExp) {
+              switch(field.filter.toLowerCase()) {
+                case 'number':
+                case 'num':
+                case 'int':
+                  field.filter = /[0-9]/;
+                  break;
+                case 'text':
+                case 'char':
+                case 'alpha':
+                case 'alphanum':
+                case 'alphanumeric':
+                case 'date':
+                  field.filter = /[A-Za-z0-9\s\-]/;
+                  break;
+                case 'uri':
+                case 'url':
+                  field.filter = /[A-Za-z0-9\-]/;
+                  break;
+                case 'mail':
+                case 'email':
+                  field.filter = /[A-Za-z0-9\.\@\-\_]/;
+                  break;
+                case 'phone':
+                case 'telephone':
+                  field.filter = /[0-9\s\(\)\-]/;
+                  break;
+                default:
+                  field.filter = null;
+              }
+            }
+          }
+  
+          // 2. Size
+          // Allow for shortcut widths 'l', 'm', 's' for 12, 6, and 3 respectively
+          if(typeof field.width === 'string') {
+            field.width = (field.width.toLowerCase() === 'l' ? 12 : field.width.toLowerCase() === 'm' ? 6 : field.width.toLowerCase() === 's' ? 3 : 12);
+          } 
+  
+          // 3. Special exceptions to different types
+          switch(returnOrProcess(field.type)) {
+            case 'boolean':
+              field.mandatory = false; // Otherwise, you can't have a boolean set to 'false' ever
+              field.options = field.options || {0: 'False', 1: 'True'};                                               
+              break;
+          }
+  
+        });
+  
+        // Third, make sure there are some closing buttons
+        buttonArray = buttonArray ? (buttonArray.length ? buttonArray : [buttonArray]) : ['Ok'];
+  
+        // Fourth, check the optionsObject
+        // if this is a string, assume it's juts the window title
+        var optionsTemplate = {title: '', drag: false, overlay: true, width: 450, height: null, minimize: false, isMinimized = false, filesAsGrid: true);
+        if(optionsObject) {
+          if(optionsObject.construcotor === String) {                                      
+            optionsObject = {title: optionsObject};
+          }
+        } else {
+          optionsObject = {};
+    }
+    var options = angular.extend(optionsTemplate, optionsObject);
   
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+    // Next, option the prompt window itself 
   
   
   
